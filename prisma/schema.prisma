@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  TUTOR
+  VET
+  CLINIC
+}
+
+enum AccessStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role
+  cpf       String?   @unique
+  crmv      String?   @unique
+  phone     String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  pets                   Pet[]
+  vaccines               Vaccine[]
+  antiParasites          AntiParasite[]
+  consults               Consult[]
+  exams                  Exam[]
+  allergies              Allergy[]
+  accessRequestsAsClinic AccessRequest[] @relation("ClinicRequests")
+  accessRequestsAsTutor  AccessRequest[] @relation("TutorRequests")
+  refreshTokens          RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+model Pet {
+  id        String    @id @default(uuid())
+  tutorId   String
+  tutor     User      @relation(fields: [tutorId], references: [id])
+  name      String
+  species   String
+  breed     String?
+  gender    String
+  birthDate DateTime
+  photo     String?
+  microchip String?
+  color     String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  weights        PetWeight[]
+  vaccines       Vaccine[]
+  antiParasites  AntiParasite[]
+  consults       Consult[]
+  exams          Exam[]
+  allergies      Allergy[]
+  accessRequests AccessRequest[]
+  accessLogs     AccessLog[]
+
+  @@map("pets")
+}
+
+model PetWeight {
+  id        String   @id @default(uuid())
+  petId     String
+  pet       Pet      @relation(fields: [petId], references: [id])
+  weight    Float
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  @@map("pet_weights")
+}
+
+model Vaccine {
+  id           String    @id @default(uuid())
+  petId        String
+  pet          Pet       @relation(fields: [petId], references: [id])
+  vetId        String
+  vet          User      @relation(fields: [vetId], references: [id])
+  name         String
+  appliedAt    DateTime
+  expiresAt    DateTime
+  lot          String?
+  manufacturer String?
+  labelPhoto   String?
+  vetSignature String?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("vaccines")
+}
+
+model AntiParasite {
+  id             String    @id @default(uuid())
+  petId          String
+  pet            Pet       @relation(fields: [petId], references: [id])
+  tutorId        String
+  tutor          User      @relation(fields: [tutorId], references: [id])
+  medicationName String
+  brand          String?
+  boxPhoto       String?
+  photoTimestamp DateTime?
+  appliedAt      DateTime
+  expiresAt      DateTime
+  notes          String?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("anti_parasites")
+}
+
+model Consult {
+  id          String    @id @default(uuid())
+  petId       String
+  pet         Pet       @relation(fields: [petId], references: [id])
+  vetId       String
+  vet         User      @relation(fields: [vetId], references: [id])
+  date        DateTime
+  clinic      String?
+  reason      String
+  diagnosis   String?
+  treatment   String?
+  notes       String?
+  attachments String[]
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("consults")
+}
+
+model Exam {
+  id        String    @id @default(uuid())
+  petId     String
+  pet       Pet       @relation(fields: [petId], references: [id])
+  vetId     String
+  vet       User      @relation(fields: [vetId], references: [id])
+  date      DateTime
+  type      String
+  lab       String?
+  result    String?
+  fileUrl   String?
+  notes     String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("exams")
+}
+
+model Allergy {
+  id             String    @id @default(uuid())
+  petId          String
+  pet            Pet       @relation(fields: [petId], references: [id])
+  registeredById String
+  registeredBy   User      @relation(fields: [registeredById], references: [id])
+  name           String
+  severity       String?
+  notes          String?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("allergies")
+}
+
+model AccessRequest {
+  id          String       @id @default(uuid())
+  clinicId    String
+  clinic      User         @relation("ClinicRequests", fields: [clinicId], references: [id])
+  tutorId     String
+  tutor       User         @relation("TutorRequests", fields: [tutorId], references: [id])
+  petId       String
+  pet         Pet          @relation(fields: [petId], references: [id])
+  status      AccessStatus @default(PENDING)
+  requestedAt DateTime     @default(now())
+  resolvedAt  DateTime?
+
+  @@map("access_requests")
+}
+
+model AccessLog {
+  id         String   @id @default(uuid())
+  clinicId   String
+  petId      String
+  pet        Pet      @relation(fields: [petId], references: [id])
+  accessedAt DateTime @default(now())
+
+  @@map("access_logs")
+}
