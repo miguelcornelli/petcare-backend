@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import * as authService from './auth.service'
-import { loginSchema, registerSchema, refreshTokenSchema } from './auth.schemas'
+import { loginSchema, registerSchema, refreshTokenSchema, updateProfileSchema } from './auth.schemas'
 
 export async function register(req: Request, res: Response): Promise<void> {
   const data = registerSchema.parse(req.body)
@@ -24,4 +24,15 @@ export async function logout(req: Request, res: Response): Promise<void> {
   const { refreshToken } = refreshTokenSchema.parse(req.body)
   await authService.logout(refreshToken)
   res.status(204).send()
+}
+
+export async function getProfile(req: Request, res: Response): Promise<void> {
+  const user = await authService.getProfile(req.user!.sub)
+  res.json(user)
+}
+
+export async function updateProfile(req: Request, res: Response): Promise<void> {
+  const data = updateProfileSchema.parse(req.body)
+  const user = await authService.updateProfile(req.user!.sub, data)
+  res.json(user)
 }

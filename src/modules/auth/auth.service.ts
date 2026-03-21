@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 import { prisma } from '../../config/prisma'
 import { env } from '../../config/env'
-import { LoginInput, RegisterInput } from './auth.schemas'
+import { LoginInput, RegisterInput, UpdateProfileInput } from './auth.schemas'
 import { UnauthorizedError, ConflictError, NotFoundError } from '../../shared/errors/AppError'
 import { JwtPayload } from '../../shared/middlewares/auth'
 
@@ -89,4 +89,31 @@ export async function refreshAccessToken(refreshToken: string) {
 
 export async function logout(refreshToken: string) {
   await prisma.refreshToken.deleteMany({ where: { token: refreshToken } })
+}
+
+export async function getProfile(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true, name: true, email: true, role: true,
+      cpf: true, crmv: true, phone: true,
+      zipCode: true, street: true, neighborhood: true, city: true, state: true,
+      createdAt: true,
+    },
+  })
+  if (!user) throw new NotFoundError('Usuário não encontrado')
+  return user
+}
+
+export async function updateProfile(userId: string, data: UpdateProfileInput) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data,
+    select: {
+      id: true, name: true, email: true, role: true,
+      cpf: true, crmv: true, phone: true,
+      zipCode: true, street: true, neighborhood: true, city: true, state: true,
+    },
+  })
+  return user
 }

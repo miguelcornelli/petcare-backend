@@ -13,6 +13,21 @@ export const registerSchema = z.object({
   cpf: z.string().optional(),
   crmv: z.string().optional(),
   phone: z.string().optional(),
+  zipCode: z.string().optional(),
+  street: z.string().optional(),
+  neighborhood: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+})
+
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres').optional(),
+  phone: z.string().optional(),
+  zipCode: z.string().optional(),
+  street: z.string().optional(),
+  neighborhood: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
 })
 
 export const refreshTokenSchema = z.object({
@@ -21,4 +36,5 @@ export const refreshTokenSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
