@@ -36,3 +36,13 @@ export async function addWeight(req: Request, res: Response): Promise<void> {
   const weight = await service.addWeight(req.params.id as string, req.user!.sub, data)
   res.status(201).json(weight)
 }
+
+export async function searchPets(req: Request, res: Response): Promise<void> {
+  const cpf = (req.query.cpf as string)?.replace(/\D/g, '')
+  if (!cpf) {
+    res.status(400).json({ error: 'CPF obrigatório' })
+    return
+  }
+  const result = await service.searchPetsByCpf(cpf)
+  res.json(result)
+}

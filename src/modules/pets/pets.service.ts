@@ -56,3 +56,17 @@ export async function addWeight(petId: string, tutorId: string, data: AddWeightI
   if (pet.tutorId !== tutorId) throw new ForbiddenError()
   return prisma.petWeight.create({ data: { petId, weight: data.weight, date: new Date(data.date) } })
 }
+
+export async function searchPetsByCpf(cpf: string) {
+  const tutor = await prisma.user.findFirst({
+    where: { cpf, role: 'TUTOR', deletedAt: null },
+    select: { id: true, name: true, email: true, phone: true, cpf: true },
+  })
+  if (!tutor) throw new NotFoundError('Tutor não encontrado com este CPF')
+
+  const pets = await prisma.pet.findMany({
+    where: { tutorId: tutor.id, deletedAt: null },
+    orderBy: { name: 'asc' },
+  })
+  return { tutor, pets }
+}

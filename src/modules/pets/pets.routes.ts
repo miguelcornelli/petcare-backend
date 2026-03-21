@@ -10,6 +10,7 @@ petsRouter.use(authenticate)
 
 petsRouter.get('/', asyncHandler(controller.listPets))
 petsRouter.post('/', upload.single('photo'), asyncHandler(controller.createPet))
+petsRouter.get('/search', authorize('VET'), asyncHandler(controller.searchPets))
 petsRouter.get('/:id', asyncHandler(controller.getPet))
 petsRouter.put('/:id', authorize('TUTOR'), upload.single('photo'), asyncHandler(controller.updatePet))
 petsRouter.delete('/:id', authorize('TUTOR'), asyncHandler(controller.deletePet))
