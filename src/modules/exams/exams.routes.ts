@@ -7,4 +7,4 @@ import { upload } from '../../config/multer'
 export const examsRouter = Router({ mergeParams: true })
 examsRouter.use(authenticate)
 examsRouter.get('/', asyncHandler(controller.listExams))
-examsRouter.post('/', authorize('VET'), upload.single('file'), asyncHandler(controller.createExam))
+examsRouter.post('/', authorize('VET', 'TUTOR'), upload.single('file'), asyncHandler(controller.createExam))

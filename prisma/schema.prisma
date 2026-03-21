@@ -164,8 +164,8 @@ model Exam {
   id        String    @id @default(uuid())
   petId     String
   pet       Pet       @relation(fields: [petId], references: [id])
-  vetId     String
-  vet       User      @relation(fields: [vetId], references: [id])
+  vetId     String?
+  vet       User?     @relation(fields: [vetId], references: [id])
   date      DateTime
   type      String
   lab       String?

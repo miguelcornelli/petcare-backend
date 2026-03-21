@@ -10,6 +10,6 @@ export async function listExams(req: Request, res: Response): Promise<void> {
 export async function createExam(req: Request, res: Response): Promise<void> {
   const data = createExamSchema.parse(req.body)
   const fileUrl = req.file?.filename
-  const exam = await service.createExam(req.params.petId as string, req.user!.sub, data, fileUrl)
+  const exam = await service.createExam(req.params.petId as string, req.user!.sub, req.user!.role, data, fileUrl)
   res.status(201).json(exam)
 }

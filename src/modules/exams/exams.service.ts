@@ -17,10 +17,18 @@ export async function listExams(petId: string, userId: string, role: string, que
   return buildPaginatedResult(items, total, page, limit)
 }
 
-export async function createExam(petId: string, vetId: string, data: CreateExamInput, fileUrl?: string) {
+export async function createExam(petId: string, userId: string, role: string, data: CreateExamInput, fileUrl?: string) {
   const pet = await prisma.pet.findFirst({ where: { id: petId, deletedAt: null } })
   if (!pet) throw new NotFoundError('Pet não encontrado')
+  if (role === 'TUTOR' && pet.tutorId !== userId) throw new ForbiddenError()
+
   return prisma.exam.create({
-    data: { petId, vetId, ...data, date: new Date(data.date), fileUrl },
+    data: {
+      petId,
+      vetId: role === 'VET' ? userId : null,
+      ...data,
+      date: new Date(data.date),
+      fileUrl,
+    },
   })
 }
